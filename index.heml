@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动漫观看统计表 (2000-2026)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 25px 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-size: cover;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        h1 i {
+            font-size: 2.2rem;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background-color: #f8f9ff;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .counter {
+            background: linear-gradient(135deg, #42e695 0%, #3bb2b8 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 5px 15px rgba(66, 230, 149, 0.3);
+        }
+        
+        .counter i {
+            font-size: 2rem;
+        }
+        
+        .count-text {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .count-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .instructions {
+            padding: 15px 30px;
+            background-color: #f0f7ff;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 1rem;
+            color: #444;
+        }
+        
+        .instructions i {
+            color: #2575fc;
+            margin-right: 8px;
+        }
+        
+        .table-container {
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1200px;
+        }
+        
+        th {
+            background-color: #f1f5ff;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #444;
+            border-bottom: 2px solid #ddd;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .year-header {
+            background-color: #2575fc;
+            color: white;
+            font-size: 1.1rem;
+            padding: 15px 8px;
+            width: 70px;
+            position: sticky;
+            left: 0;
+            z-index: 20;
+            border-right: 2px solid #ddd;
+        }
+        
+        .anime-cell {
+            padding: 12px 8px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            border-right: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 120px;
+            position: relative;
+        }
+        
+        .anime-cell:hover {
+            background-color: #f9f9f9;
+            transform: scale(1.02);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+            z-index: 5;
+        }
+        
+        .anime-cell.watched {
+            background-color: #4caf50;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .anime-name {
+            font-size: 0.95rem;
+            line-height: 1.3;
+        }
+        
+        .year-column {
+            position: sticky;
+            left: 0;
+            z-index: 10;
+            background-color: white;
+            border-right: 2px solid #ddd;
+            font-weight: bold;
+            text-align: center;
+            padding: 15px 8px;
+            width: 70px;
+        }
+        
+        footer {
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+            background-color: #f8f9ff;
+            border-top: 1px solid #eaeaea;
+            font-size: 0.95rem;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-reset {
+            background-color: #ff6b6b;
+            color: white;
+        }
+        
+        .btn-reset:hover {
+            background-color: #ff5252;
+            transform: translateY(-2px);
+        }
+        
+        .btn-export {
+            background-color: #4dabf7;
+            color: white;
+        }
+        
+        .btn-export:hover {
+            background-color: #339af0;
+            transform: translateY(-2px);
+        }
+        
+        .btn-import {
+            background-color: #51cf66;
+            color: white;
+        }
+        
+        .btn-import:hover {
+            background-color: #40c057;
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .stats-container {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .counter {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-tv"></i> 动漫观看统计表</h1>
+            <p class="subtitle">记录您从2000年到2026年观看过的动漫作品</p>
+        </header>
+        
+        <div class="stats-container">
+            <div class="instructions">
+                <p><i class="fas fa-mouse-pointer"></i> 点击动漫名称标记为已观看（绿色），再次点击取消标记</p>
+            </div>
+            <div class="counter">
+                <i class="fas fa-check-circle"></i>
+                <div>
+                    <div class="count-text" id="count">0</div>
+                    <div class="count-label">已观看动漫总数</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table id="anime-table">
+                <thead>
+                    <tr>
+                        <th class="year-header">年份</th>
+                        <!-- 动漫标题将通过JavaScript动态生成 -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 表格内容将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+        </div>
+        
+        <footer>
+            <p>动漫观看统计表 &copy; 2023 - 数据保存在本地浏览器中，不会上传到服务器</p>
+            <div class="controls">
+                <button class="btn btn-reset" id="reset-btn">
+                    <i class="fas fa-redo"></i> 重置所有标记
+                </button>
+                <button class="btn btn-export" id="export-btn">
+                    <i class="fas fa-download"></i> 导出数据
+                </button>
+                <button class="btn btn-import" id="import-btn">
+                    <i class="fas fa-upload"></i> 导入数据
+                </button>
+                <input type="file" id="import-file" accept=".json" style="display: none;">
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // 动漫数据（示例数据，可根据需要修改）
+        const animeData = {
+            "2000": ["犬夜叉", "数码宝贝", "海贼王", "游戏王", "名侦探柯南剧场版"],
+            "2001": ["千与千寻", "棋魂", "通灵王", "水果篮子", "热带雨林的爆笑生活"],
+            "2002": ["火影忍者", "攻壳机动队", "阿滋漫画大王", "全金属狂潮", "人形电脑天使心"],
+            "2003": ["钢之炼金术师", "星际牛仔", "EVA", "狼与香辛料", "凉宫春日的忧郁"],
+            "2004": ["死神", "蜂蜜与四叶草", "魔法少女奈叶", "苍穹之法芙娜", "校园迷糊大王"],
+            "2005": ["灼眼的夏娜", "地狱少女", "蔷薇少女", "AIR", "黑猫"],
+            "2006": ["叛逆的鲁路修", "凉宫春日的忧郁", "Fate/stay night", "银魂", "死亡笔记"],
+            "2007": ["CLANNAD", "幸运星", "寒蝉鸣泣之时", "黑之契约者", "旋风管家"],
+            "2008": ["魔法禁书目录", "夏目友人帐", "龙与虎", "噬魂师", "反叛的鲁路修R2"],
+            "2009": ["轻音少女", "Angel Beats!", "化物语", "某科学的超电磁炮", "凉宫春日的忧郁"],
+            "2010": ["魔法少女小圆", "我的妹妹不可能那么可爱", "无头骑士异闻录", "会长是女仆大人", "K-ON!!"],
+            "2011": ["命运石之门", "未闻花名", "Fate/Zero", "罪恶王冠", "境界线上的地平线"],
+            "2012": ["刀剑神域", "心理测量者", "中二病也要谈恋爱", "JOJO的奇妙冒险", "冰菓"],
+            "2013": ["进击的巨人", "LoveLive!", "东京暗鸦", "我的青春恋爱物语果然有问题", "斩服少女"],
+            "2014": ["白箱", "四月是你的谎言", "NO GAME NO LIFE", "寄生兽", "ALDNOAH.ZERO"],
+            "2015": ["一拳超人", "Charlotte", "干物妹！小埋", "吹响！上低音号", "OVERLORD"],
+            "2016": ["你的名字", "Re:从零开始的异世界生活", "灵能百分百", "为美好的世界献上祝福", "冰上的尤里"],
+            "2017": ["小林家的龙女仆", "宝石之国", "来自深渊", "少女终末旅行", "此花亭奇谭"],
+            "2018": ["比宇宙更远的地方", "佐贺偶像是传奇", "工作细胞", "命运石之门0", "紫罗兰永恒花园"],
+            "2019": ["鬼灭之刃", "辉夜大小姐想让我告白", "盾之勇者成名录", "约定的梦幻岛", "石纪元"],
+            "2020": ["咒术回战", "别对映像研出手！", "Re:从零开始的异世界生活 第二季", "某科学的超电磁炮T", "公主连结Re:Dive"],
+            "2021": ["奇蛋物语", "赛马娘 第二季", "86-不存在的战区-", "无职转生", "摇曳露营△ SEASON2"],
+            "2022": ["间谍过家家", "孤独摇滚！", "莉可丽丝", "更衣人偶坠入爱河", "夏日重现"],
+            "2023": ["我推的孩子", "葬送的芙莉莲", "咒术回战 第二季", "冰海战记 第二季", "天国大魔境"],
+            "2024": ["迷宫饭", "葬送的芙莉莲 后半", "我独自升级", "佐佐木与文鸟小哔", "憧憬成为魔法少女"],
+            "2025": ["电锯人 第二季", "间谍过家家 第三季", "鬼灭之刃 柱训练篇", "怪盗女王 预告中", "新海诚新作 待定"],
+            "2026": ["未公布作品1", "未公布作品2", "未公布作品3", "未公布作品4", "未公布作品5"]
+        };
+        
+        // 初始化变量
+        let watchedAnime = new Set();
+        let animeTable = [];
+        
+        // DOM元素
+        const tableBody = document.querySelector('#anime-table tbody');
+        const tableHead = document.querySelector('#anime-table thead tr');
+        const countElement = document.getElementById('count');
+        const resetBtn = document.getElementById('reset-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const importBtn = document.getElementById('import-btn');
+        const importFile = document.getElementById('import-file');
+        
+        // 从本地存储加载已观看的动漫
+        function loadWatchedAnime() {
+            const saved = localStorage.getItem('watchedAnime');
+            if (saved) {
+                watchedAnime = new Set(JSON.parse(saved));
+            }
+            updateCount();
+        }
+        
+        // 保存已观看的动漫到本地存储
+        function saveWatchedAnime() {
+            localStorage.setItem('watchedAnime', JSON.stringify([...watchedAnime]));
+        }
+        
+        // 更新计数显示
+        function updateCount() {
+            countElement.textContent = watchedAnime.size;
+        }
+        
+        // 创建表格
+        function createTable() {
+            // 清空表格
+            tableHead.innerHTML = '<th class="year-header">年份</th>';
+            tableBody.innerHTML = '';
+            
+            // 获取所有年份
+            const years = Object.keys(animeData).sort((a, b) => parseInt(a) - parseInt(b));
+            
+            // 确定表格的最大列数（最多动漫的年份）
+            let maxAnimeCount = 0;
+            years.forEach(year => {
+                maxAnimeCount = Math.max(maxAnimeCount, animeData[year].length);
+            });
+            
+            // 创建表头
+            for (let i = 0; i < maxAnimeCount; i++) {
+                const th = document.createElement('th');
+                th.textContent = `动漫 ${i + 1}`;
+                tableHead.appendChild(th);
+            }
+            
+            // 创建表格行
+            years.forEach(year => {
+                const row = document.createElement('tr');
+                
+                // 年份列
+                const yearCell = document.createElement('td');
+                yearCell.className = 'year-column';
+                yearCell.textContent = year;
+                row.appendChild(yearCell);
+                
+                // 动漫单元格
+                const animes = animeData[year];
+                for (let i = 0; i < maxAnimeCount; i++) {
+                    const cell = document.createElement('td');
+                    cell.className = 'anime-cell';
+                    
+                    if (i < animes.length) {
+                        const animeName = animes[i];
+                        cell.innerHTML = `<div class="anime-name">${animeName}</div>`;
+                        
+                        // 创建唯一标识符
+                        const animeId = `${year}-${animeName}`;
+                        
+                        // 检查是否已观看
+                        if (watchedAnime.has(animeId)) {
+                            cell.classList.add('watched');
+                        }
+                        
+                        // 添加点击事件
+                        cell.addEventListener('click', () => {
+                            if (cell.classList.contains('watched')) {
+                                cell.classList.remove('watched');
+                                watchedAnime.delete(animeId);
+                            } else {
+                                cell.classList.add('watched');
+                                watchedAnime.add(animeId);
+                            }
+                            updateCount();
+                            saveWatchedAnime();
+                        });
+                        
+                        // 存储动漫信息
+                        animeTable.push({
+                            id: animeId,
+                            year: year,
+                            name: animeName,
+                            cell: cell
+                        });
+                    }
+                    
+                    row.appendChild(cell);
+                }
+                
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // 重置所有标记
+        function resetAll() {
+            if (confirm('确定要重置所有观看标记吗？此操作不可撤销。')) {
+                watchedAnime.clear();
+                animeTable.forEach(item => {
+                    item.cell.classList.remove('watched');
+                });
+                updateCount();
+                saveWatchedAnime();
+            }
+        }
+        
+        // 导出数据为JSON文件
+        function exportData() {
+            const data = {
+                watchedAnime: [...watchedAnime],
+                exportDate: new Date().toISOString(),
+                totalCount: watchedAnime.size
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(dataBlob);
+            downloadLink.download = `动漫观看统计_${new Date().toLocaleDateString('zh-CN')}.json`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            
+            alert(`数据已导出，共${watchedAnime.size}部动漫`);
+        }
+        
+        // 导入数据
+        function importData() {
+            importFile.click();
+        }
+        
+        // 处理导入文件
+        function handleImportFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (data.watchedAnime && Array.isArray(data.watchedAnime)) {
+                        // 清除当前数据
+                        watchedAnime.clear();
+                        
+                        // 添加导入的数据
+                        data.watchedAnime.forEach(id => {
+                            watchedAnime.add(id);
+                        });
+                        
+                        // 更新表格
+                        animeTable.forEach(item => {
+                            if (watchedAnime.has(item.id)) {
+                                item.cell.classList.add('watched');
+                            } else {
+                                item.cell.classList.remove('watched');
+                            }
+                        });
+                        
+                        updateCount();
+                        saveWatchedAnime();
+                        alert(`成功导入数据，共${watchedAnime.size}部动漫`);
+                    } else {
+                        alert('文件格式不正确，无法导入数据');
+                    }
+                } catch (error) {
+                    alert('读取文件时发生错误：' + error.message);
+                }
+                
+                // 清空文件输入，以便可以再次选择同一文件
+                importFile.value = '';
+            };
+            
+            reader.readAsText(file);
+        }
+        
+        // 初始化页面
+        function init() {
+            loadWatchedAnime();
+            createTable();
+            
+            // 添加事件监听器
+            resetBtn.addEventListener('click', resetAll);
+            exportBtn.addEventListener('click', exportData);
+            importBtn.addEventListener('click', importData);
+            importFile.addEventListener('change', handleImportFile);
+            
+            // 添加键盘快捷键
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    resetAll();
+                }
+            });
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
