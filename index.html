@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动漫观看统计表 (2000-2026)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 25px 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-size: cover;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        h1 i {
+            font-size: 2.2rem;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background-color: #f8f9ff;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .counter {
+            background: linear-gradient(135deg, #42e695 0%, #3bb2b8 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 5px 15px rgba(66, 230, 149, 0.3);
+        }
+        
+        .counter i {
+            font-size: 2rem;
+        }
+        
+        .count-text {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .count-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .instructions {
+            padding: 15px 30px;
+            background-color: #f0f7ff;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 1rem;
+            color: #444;
+        }
+        
+        .instructions i {
+            color: #2575fc;
+            margin-right: 8px;
+        }
+        
+        .table-container {
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1200px;
+        }
+        
+        th {
+            background-color: #f1f5ff;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #444;
+            border-bottom: 2px solid #ddd;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .year-header {
+            background-color: #2575fc;
+            color: white;
+            font-size: 1.1rem;
+            padding: 15px 8px;
+            width: 70px;
+            position: sticky;
+            left: 0;
+            z-index: 20;
+            border-right: 2px solid #ddd;
+        }
+        
+        .anime-cell {
+            padding: 12px 8px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            border-right: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 120px;
+            position: relative;
+        }
+        
+        .anime-cell:hover {
+            background-color: #f9f9f9;
+            transform: scale(1.02);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+            z-index: 5;
+        }
+        
+        .anime-cell.watched {
+            background-color: #4caf50;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .anime-name {
+            font-size: 0.95rem;
+            line-height: 1.3;
+        }
+        
+        .year-column {
+            position: sticky;
+            left: 0;
+            z-index: 10;
+            background-color: white;
+            border-right: 2px solid #ddd;
+            font-weight: bold;
+            text-align: center;
+            padding: 15px 8px;
+            width: 70px;
+        }
+        
+        footer {
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+            background-color: #f8f9ff;
+            border-top: 1px solid #eaeaea;
+            font-size: 0.95rem;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-reset {
+            background-color: #ff6b6b;
+            color: white;
+        }
+        
+        .btn-reset:hover {
+            background-color: #ff5252;
+            transform: translateY(-2px);
+        }
+        
+        .btn-export {
+            background-color: #4dabf7;
+            color: white;
+        }
+        
+        .btn-export:hover {
+            background-color: #339af0;
+            transform: translateY(-2px);
+        }
+        
+        .btn-import {
+            background-color: #51cf66;
+            color: white;
+        }
+        
+        .btn-import:hover {
+            background-color: #40c057;
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .stats-container {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .counter {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-tv"></i> 动漫观看统计表</h1>
+            <p class="subtitle">记录您从2000年到2026年观看过的动漫作品（小野寺没有输！！！）</p>
+        </header>
+        
+        <div class="stats-container">
+            <div class="instructions">
+                <p><i class="fas fa-mouse-pointer"></i> 点击动漫名称标记为已观看（绿色），再次点击取消标记</p>
+            </div>
+            <div class="counter">
+                <i class="fas fa-check-circle"></i>
+                <div>
+                    <div class="count-text" id="count">0</div>
+                    <div class="count-label">已观看动漫总数</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table id="anime-table">
+                <thead>
+                    <tr>
+                        <th class="year-header">年份</th>
+                        <!-- 动漫标题将通过JavaScript动态生成 -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 表格内容将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+        </div>
+        
+        <footer>
+            <p>动漫观看统计表 &copy; 2023 - 数据保存在本地浏览器中，不会上传到服务器</p>
+            <div class="controls">
+                <button class="btn btn-reset" id="reset-btn">
+                    <i class="fas fa-redo"></i> 重置所有标记
+                </button>
+                <button class="btn btn-export" id="export-btn">
+                    <i class="fas fa-download"></i> 导出数据
+                </button>
+                <button class="btn btn-import" id="import-btn">
+                    <i class="fas fa-upload"></i> 导入数据
+                </button>
+                <input type="file" id="import-file" accept=".json" style="display: none;">
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // 动漫数据（示例数据，可根据需要修改）
+        const animeData = {
+            "2000": [
+  "犬夜叉",
+  "数码宝贝大冒险02",
+  "海贼王",
+  "游戏王：决斗怪兽",
+  "名侦探柯南：瞳孔中的暗杀者",
+  "爆旋陀螺",
+  "头文字D Second Stage",
+  "纯情房东俏房客",
+  "圣石小子",
+  "浪客剑心 追忆篇",
+  "蓝与黑",
+  "魔力女管家",
+  "星界的战旗",
+  "BLOOD THE LAST VAMPIRE",
+  "蘑菇森林的伙伴们",
+  "火魅子传",
+  "守护月天",
+  "万有引力",
+  "奇幻贵公子",
+  "神奇宝贝：结晶塔的帝王",
+  "葫芦小金刚",
+  "大运动会2",
+  "森林大帝 - 新传",
+  "魔法少女小樱 剧场版2 被封印的卡片",
+  "幻想魔传 最游记",
+  "天使禁猎区",
+  "Ojamajo Doremi #",
+  "棉花白兔",
+  "鬼眼狂刀",
+  "LOVE LOVE？",
+  "勇者王GaoGaiGar FINAL",
+  "金田一少年事件簿SP 雪夜叉传说杀人事件",
+  "大嘴鸟",
+  "LOST UNIVERSE",
+  "棋灵王（棋魂 试播集）",
+  "全职猎人（猎人×猎人 OVA 贪婪之岛前篇）",
+  "小天使快跑",
+  "神雕侠侣 独臂刀",
+  "幽游白书 剧场版",
+  "万能文化猫娘DASH！",
+  "精灵守护者",
+  "天使特警 DASH！",
+  "忍者乱太郎",
+  "勇者指令 达古安",
+  "魔法使之夜",
+  "橘子酱男孩 OVA",
+  "鬼太郎",
+  "初吻",
+  "薄荷关系"
+],
+           "2001": [
+  "千与千寻",
+  "火影忍者",
+  "全金属狂潮",
+  "钢之炼金术师（第一季特典/企划期）",
+  "水果篮子",
+  "棋魂",
+  "网球王子",
+  "东京地底奇兵",
+  "通灵王",
+  "高智能方程式赛车 SIN",
+  "数码宝贝驯兽师",
+  "魔法少女猫",
+  "暗与帽子与书之旅人",
+  "爆旋陀螺2002",
+  "银河天使",
+  "宇宙战舰大和号 永远的0",
+  "天上天下",
+  "圣斗士星矢 冥王哈迪斯",
+  "学园战记无量",
+  "魔法护士小麦",
+  "守护月天OVA",
+  "守护甜心（第一版OVA）",
+  "机动战士高达THE ORIGIN 原创动画",
+  "花田少年史",
+  "女神候补生",
+  "幻想魔传 最游记",
+  "勇者王GaoGaiGar FINAL GRAND GLORIOUS GATHERING",
+  "光之美少女（企划OVA）",
+  "真月谭月姬（预热宣传/短篇）",
+  "魔法使之夜（PV动画）",
+  "驱魔少年（OVA）",
+  "无责任舰长2001",
+  "高达新机动战记W Endless Waltz 特别篇",
+  "冒险王比特",
+  "骇客时空 SIGN",
+  "东京巴比伦",
+  "NOIR 黑色天使",
+  "科学小飞侠F",
+  "高达创战者（前身OVA）",
+  "恒星少女",
+  "咪咪流浪记",
+  "地球防卫少年",
+  "新世纪福音战士 死与新生（剧场再放）",
+  "最终幻想：无限",
+  "足球小将翼",
+  "圣石小子（新章）",
+  "魔法老师（OAD）",
+  "蜡笔小新：风起云涌！丢失的野原广志",
+  "蜡笔小新：成人帝国的反击",
+  "飞天少女猪"
+],
+            "2002": [
+  "十二国记",
+  "全金属狂潮 校园篇",
+  "回转企鹅罐",
+  "灰羽联盟",
+  "高桥留美子剧场",
+  "爆丸之战",
+  "Kanon（重制版特别篇）",
+  "数码宝贝驯兽师",
+  "苍穹之法芙娜",
+  "超时空要塞ZERO",
+  "天使特警 The Movie",
+  "冒险王比特",
+  "洛克人EXE",
+  "魔法少女奈叶（OVA）",
+  "R.O.D 读或死",
+  "东京地下",
+  "正义红师",
+  "守护月天OVAⅡ",
+  "东京巴比伦",
+  "TEXHNOLYZE",
+  "寻秦记（动画版）",
+  "机动战士高达SEED",
+  "小魔女DoReMi大合奏",
+  "魔法侦探洛奇",
+  "翼·年代记（概念PV）",
+  "搞笑漫画日和",
+  "天地无用！GXP",
+  "怪物王女 OVA",
+  "恋风（OVA）",
+  "小魔女学园（试播）",
+  "钢之炼金术师（片头/特别编）",
+  "正义先锋",
+  "海马",
+  "守护甜心！（预告PV）",
+  "银河天使Z",
+  "魂之骨",
+  "钢铁神兵Ⅱ",
+  "热带雨林的爆笑生活DELUXE",
+  "女神候补生OVA",
+  "龙珠Z剧场版 龙拳爆发！悟空舍我其谁",
+  "奇诺之旅",
+  "机巧魔神",
+  "热带雨林的爆笑生活2期",
+  "超魔神英雄传",
+  "头文字D Third Stage",
+  "神魂合体",
+  "兰花战士",
+  "妹妹公主",
+  "哆啦A梦 剧场版 大雄与机器人王国",
+  "火之鸟"
+],
+            "2003": [
+  "钢之炼金术师",
+  "狗狗与我",
+  "十二国记（后半段）",
+  "高达SEED",
+  "星之梦",
+  "魁拔（日本早期合作OVA）",
+  "绝对少年（OVA）",
+  "机动战士Z高达 Ⅲ 星之鼓动是爱",
+  "青出于蓝",
+  "真月谭月姬",
+  "冒险王比特",
+  "机动警察",
+  "克拉斯特学园",
+  "闪灵二人组",
+  "闪灵二人组Special",
+  "妄想代理人（特别篇）",
+  "机动战士高达SEED OVA",
+  "神魂合体",
+  "美鸟日记",
+  "一骑当千",
+  "怪盗圣少女",
+  "明日的与一",
+  "小女神花铃",
+  "银河天使A",
+  "机动战士高达0083",
+  "勇者指令 达古安",
+  "最游记外传",
+  "纯情罗曼史（OVA）",
+  "剑豪生死斗",
+  "舞-HiME",
+  "大剑",
+  "食梦者玛莉（OVA）",
+  "奇幻贵公子",
+  "怪物",
+  "小魔女DoReMi 大合奏",
+  "鲁邦三世VS名侦探柯南",
+  "星界的战旗 II",
+  "哆啦A梦：大雄与不可思议之风使者",
+  "恋风",
+  "悲惨世界 少女柯赛特",
+  "樱桃小丸子",
+  "旋风管家（早期OVA）",
+  "神无月的巫女",
+  "DearS",
+  "超魔神英雄传（剧场）",
+  "朝雾的巫女",
+  "瓶诘妖精",
+  "浪漫追星社",
+  "小天使快跑"
+],
+            "2004": [
+  "死神BLEACH",
+  "王牌投手 振臂高挥",
+  "北斗神拳 真救世主传说",
+  "MM一族",
+  "今日的5年2班",
+  "灼眼的夏娜",
+  "交响情人梦",
+  "怪物",
+  "舞-HiME",
+  "爆漫王。",
+  "神无月的巫女",
+  "樱兰高校男公关部（预告/伙伴剧）",
+  "苺100%",
+  "天才麻将少女",
+  "草莓棉花糖",
+  "极上生徒会",
+  "今天的5年2班 OVA",
+  "黑塔利亚 轴心国",
+  "银魂（预告篇）",
+  "D.N.ANGEL",
+  "仙境传说",
+  "炎之蜃气楼",
+  "新选组异闻录铁",
+  "机动战士高达SEED DESTINY",
+  "旋风管家",
+  "天使怪盗",
+  "DearS",
+  "小女神花铃",
+  "蔷薇少女",
+  "苍穹之战神",
+  "守护猫娘绯鞠",
+  "我的狐仙女友",
+  "双恋",
+  "神魂合体",
+  "枪姬",
+  "魔法少女奈叶",
+  "不可思议星球的双胞胎公主 Gyu!",
+  "我的女神",
+  "混沌武士",
+  "美鸟日记 OVA",
+  "学园迷糊大王",
+  "TEXHNOLYZE",
+  "X战记",
+  "机动警察New OVA",
+  "棒球英豪",
+  "高达新机动战记W：无尽的华尔兹特别篇",
+  "最游记外传",
+  "怪〜ayakashi〜",
+  "僵尸借贷"
+],
+            "2005": [
+  "银魂",
+  "蜂蜜与四叶草",
+  "交响情人梦",
+  "秒速五厘米（首映宣传）",
+  "甲贺忍法帖",
+  "学园天堂",
+  "恶童日记",
+  "蔷薇少女 梦之终结",
+  "草莓棉花糖 OVA",
+  "不可思议的教室",
+  "枪神斯托拉塔斯",
+  "AIR",
+  "灼眼的夏娜",
+  "今天的5年2班 TV",
+  "我的女神",
+  "极上生徒会",
+  "魔法少女奈叶A's",
+  "全金属狂潮 The Second Raid",
+  "灼眼的夏娜 SP",
+  "交响诗篇艾蕾卡7",
+  "搞笑漫画日和2",
+  "创圣的大天使",
+  "光明之泪",
+  "地狱少女",
+  "我的狐仙女友 SP",
+  "伊里野的天空，UFO的夏天",
+  "王牌投手 振臂高挥",
+  "樱兰高校男公关部（新作放送前宣传）",
+  "童梦失乐园",
+  "蔷薇少女",
+  "ToHeart2",
+  "魔界战记",
+  "极品家丁",
+  "草莓100%",
+  "遍地英豪",
+  "莉莉的恋爱物语",
+  "Fate/stay night",
+  "魔法老师",
+  "强袭魔女",
+  "BLOOD+",
+  "女生万岁第二季",
+  "不可思议星球的双胞胎公主",
+  "驭星者",
+  "黑猫",
+  "战国英豪",
+  "未来日记 特别篇",
+  "机动战士Z高达 星之鼓动是爱",
+  "头文字D Fourth Stage",
+  "大剑 OVA"
+],
+            "2006": [
+  "死亡笔记",
+  "Code Geass 反叛的鲁路修",
+  "银魂",
+  "凉宫春日的忧郁",
+  "蜂蜜与四叶草II",
+  "秒速五厘米（预告/首映阶段）",
+  "监狱兔",
+  "NANA",
+  "天元突破红莲螺岩（前导宣传）",
+  "桔梗公主之恋",
+  "反叛的鲁路修",
+  "圣魔之血",
+  "银色之匙",
+  "童梦失乐园II",
+  "红色花园",
+  "结界师",
+  "银发阿基多",
+  "黑之契约者",
+  "人鱼的旋律",
+  "草莓棉花糖2",
+  "IZUMO 猫神大人",
+  "叛逆的鲁路修",
+  "不可思议星球的双胞胎公主Gyu!",
+  "悦乐园日记",
+  "Super Robot Wars OG - Divine Wars",
+  "地狱少女 二笼",
+  "出租魔法使",
+  "暮蝉鸣泣之时",
+  "苍天之拳",
+  "东京友好物语",
+  "新安琪莉可",
+  "彩云国物语",
+  "乙女天堂2",
+  "魔法老师!?（新）",
+  "欢迎加入NHK",
+  "热带雨林的爆笑生活Final",
+  "009-1",
+  "夜明前的琉璃色",
+  "幕末机关说",
+  "只想被你喜欢",
+  "结界师 特别篇",
+  "机动战士高达SEED C.E.73 STARGAZER",
+  "银河战警",
+  "装甲骑兵VOlKEIN",
+  "神样家族",
+  "武装炼金",
+  "公主公主",
+  "不可思议之星的双胞胎公主Gyu!",
+  "少女爱上姐姐"
+],
+           "2007": [
+  "CLANNAD",
+  "幸运星",
+  "天元突破红莲螺岩",
+  "守护甜心！",
+  "秒速五厘米",
+  "ef - a tale of memories.",
+  "魔法少女奈叶StrikerS",
+  "大剑",
+  "绝望先生",
+  "机动战士高达00",
+  "精灵守护者",
+  "BACCANO！大骚动！",
+  "罗密欧与朱丽叶",
+  "结界师",
+  "怪物王女",
+  "蓝龙",
+  "地球防卫少年",
+  "竹剑少女",
+  "地狱少女 三鼎",
+  "兽爪",
+  "初音岛II",
+  "电器街的漫画店",
+  "红",
+  "钢铁新娘",
+  "Myself;Yourself",
+  "大魔法峠",
+  "电波系彼女",
+  "魔人侦探食脑奈罗",
+  "药师寺凉子怪奇事件簿",
+  "罗德斯岛战记 英雄骑士传 OVA",
+  "暗夜魔法使",
+  "大江户火箭",
+  "森之妖精阿露露",
+  "魔法使借贷公司",
+  "天保异闻 妖奇士（后半）",
+  "神曲奏界",
+  "魔法律事务所",
+  "流星之绊",
+  "新世纪福音战士新剧场版：序",
+  "钢壳都市雷吉欧斯（前导宣传）",
+  "鬼太郎（2007年版）",
+  "恋爱情结",
+  "钢铁三国志",
+  "守护之心",
+  "神圣十字剑",
+  "英德拉之光",
+  "兽神演武",
+  "怪哉怪哉",
+  "恶作剧之吻",
+  "史上最强弟子兼一",
+  "杀戮都市 GANTZ（新OVA/剧场版）"
+],
+            "2008": [
+  "CLANNAD ～After Story～",
+  "黑执事",
+  "绝对可怜小孩",
+  "夏目友人帐",
+  "食灵-零-",
+  "鹡鸰女神",
+  "空之音",
+  "SOUL EATER 噬魂师",
+  "真实之泪 true tears",
+  "无头骑士异闻录（先导PV/短篇）",
+  "Macross F 超时空要塞F",
+  "乃木坂春香的秘密",
+  "铁腕女警",
+  "Mission-E",
+  "魔人侦探食脑奈罗",
+  "秀逗魔导士REVOLUTION",
+  "隐之王",
+  "CHAOS;HEAD 混沌头",
+  "反叛的鲁路修R2",
+  "仰望半月的夜空（新作动画）",
+  "To LOVEる",
+  "忆星之翼ef - a tale of melodies.",
+  "精灵守护者特别篇",
+  "守护甜心！Doki",
+  "机动战士高达00 第二季",
+  "狼与香辛料",
+  "西洋骨董洋果子店",
+  "Phantom ～Requiem for the Phantom～（前导）",
+  "今日的5年2班（TV系列）",
+  "shugo chara!! doki",
+  "绝望先生（俗・再续篇）",
+  "神薙",
+  "鹡鸰女神 double",
+  "钢铁新娘",
+  "钢之炼金术师 PREMIUM OVA",
+  "药师寺凉子怪奇事件簿",
+  "BLASSREITER",
+  "Mission-E",
+  "草莓棉花糖 encore",
+  "PERSONA -trinity soul-",
+  "鲁邦三世VS名侦探柯南（TVSP）",
+  "彩云国物语 第二季",
+  "今日的5年2班OVA2",
+  "鸭子的天空（先导动画）",
+  "地狱少女 三鼎",
+  "晓之护卫",
+  "亡念之扎姆德",
+  "狂乱家族日记",
+  "鹦鹉女神OVA"
+],
+            "2009": [
+  "化物语",
+  "K-ON！轻音少女",
+  "空之境界 第七章",
+  "夏目友人帐 第二季",
+  "钢之炼金术师FA",
+  "黑执事 第二季（前导）",
+  "狼与香辛料II",
+  "青之文学",
+  "青之花",
+  "东之伊甸",
+  "穿越宇宙的少女",
+  "战场女武神",
+  "香格里拉",
+  "四叶游戏",
+  "CANAAN",
+  "无头骑士异闻录（补完篇）",
+  "青之驱魔师（OVA）",
+  "公主恋人！",
+  "大正野球娘",
+  "超能力大兵",
+  "白色相簿",
+  "魔力女管家 我回来了♥（新OVA）",
+  "小鸠",
+  "战国BASARA",
+  "我们仍未知道那天所看见的花的名字（初PV/短篇）",
+  "怪谈餐馆",
+  "天体战士太阳之牙",
+  "TALES OF THE ABYSS",
+  "空罐少女",
+  "天降之物",
+  "犬夜叉 完结篇",
+  "迷茫管家与懦弱的我",
+  "学生会的一己之见",
+  "南家三姐妹 欢迎回来",
+  "初恋限定",
+  "神曲奏界",
+  "信蜂",
+  "极上！！超激战！！究极指令！",
+  "WHITE ALBUM 第二季",
+  "机巧魔神",
+  "钢壳都市雷吉欧斯",
+  "Basquash！篮球大爆炸",
+  "爆漫王。",
+  "加奈日记",
+  "壳中少女",
+  "真・恋姬无双",
+  "女王之刃",
+  "奇迹列车",
+  "RIDEBACK -机甲旋律-"
+],
+            "2010": [
+  "Angel Beats!",
+  "未来日记 OVA",
+  "无头骑士异闻录",
+  "K-ON！！轻音少女 第二季",
+  "我的妹妹哪有这么可爱！",
+  "笨蛋，测验，召唤兽",
+  "学园默示录",
+  "只有神知道的世界",
+  "食梦者玛莉",
+  "尸鬼",
+  "只想被你喜欢",
+  "机巧魔神",
+  "WORKING!!迷糊餐厅",
+  "变身！公主偶像",
+  "吊带袜天使",
+  "圣诞之吻SS",
+  "四畳半神话大系",
+  "少年同盟",
+  "缘之空",
+  "薄樱鬼",
+  "刀语",
+  "传说中勇者的传说",
+  "迷途猫overrun",
+  "大正野球娘 OVA",
+  "会长是女仆大人",
+  "荒川爆笑团",
+  "世紀末超自然学院",
+  "小鸠",
+  "最后大魔王",
+  "爆漫王。",
+  "闪光的夜袭",
+  "守护猫娘绯鞠",
+  "文学少女",
+  "Panty & Stocking with Garterbelt 吊带袜天使",
+  "侵略！花枝娘",
+  "魔法禁书目录 第二季",
+  "最强会长黑神",
+  "心灵侦探八云",
+  "江户盗贼团五叶",
+  "迷糊餐厅",
+  "滑头鬼之孙",
+  "神样DOLLS",
+  "数码宝贝大冒险X进化",
+  "Angel Beats! 特别篇",
+  "百花缭乱 SAMURAI GIRLS",
+  "学园救援团",
+  "初恋限定 OVA",
+  "红Kure-nai OVA",
+  "拂晓的尤娜（动画PV）"
+],
+            "2011": [
+  "命运石之门",
+  "未闻花名",
+  "Fate/Zero",
+  "未来日记",
+  "日常",
+  "花开伊吕波",
+  "蓝色除魔师",
+  "电玩咖啡厅",
+  "轻音少女 剧场版",
+  "男子高中生的日常",
+  "喜欢本大爷的竟然就你一个",
+  "架向星空之桥",
+  "记录的地平线（先导OVA）",
+  "迷茫管家与懦弱的我",
+  "偶像大师",
+  "迷糊餐厅 第二季",
+  "冰果（宣传PV）",
+  "神的记事本",
+  "萝球部！",
+  "便·当",
+  "我们没有翅膀",
+  "天降之物 剧场版",
+  "迷你裙宇宙海贼",
+  "如果高校棒球队女经理读了彼得·德鲁克的管理学",
+  "这个是僵尸吗？",
+  "樱兰高校男公关部（新作OVA）",
+  "勇者特急队 Braves",
+  "玉子市场（PV）",
+  "世界第一初恋2",
+  "魔法少女小圆",
+  "C3 魔方少女",
+  "DOG DAYS",
+  "恶魔奶爸",
+  "机器人笔记（动画前PV）",
+  "神样DOLLS",
+  "战斗司书",
+  "青之驱魔师 剧场版 预告片",
+  "尸鬼 OVA/未放送篇",
+  "超级机器人大战OG",
+  "高达AGE",
+  "异国迷宫的十字路口",
+  "迷你裙宇宙海贼 OVA",
+  "R-15",
+  "银魂'（新）",
+  "恋爱随风",
+  "战国乙女～桃色Paradox～",
+  "新网球王子 OVA",
+  "电波女与青春男",
+  "异能侦探Office"
+],
+           "2012": [
+  "冰菓",
+  "刀剑神域",
+  "中二病也要谈恋爱！",
+  "男子高中生的日常",
+  "夏雪密会",
+  "黑子的篮球",
+  "伪物语",
+  "ZETMAN",
+  "神不在的星期天",
+  "绝园的暴风雨",
+  "人类衰退之后",
+  "TARI TARI",
+  "来自新世界",
+  "坂道上的阿波罗",
+  "只要你说你爱我",
+  "恶魔幸存者2",
+  "这就是僵尸吗？OF THE DEAD",
+  "天使的脉动！剧场版",
+  "军火女王",
+  "另一个（Another）",
+  "谜样女友X",
+  "加速世界",
+  "元气囝仔（动画PV）",
+  "宠物小精灵 超级愿望2",
+  "东京大地震档案（新作）",
+  "恋爱随风 第二季",
+  "军火女王 第二季",
+  "命运石之门 负荷领域的既视感（剧场版前奏）",
+  "小鸟游六花・改 剧场版 中二病也要谈恋爱！",
+  "花牌情缘",
+  "一票之差（OVA）",
+  "妖狐×仆SS",
+  "校园女生强袭者",
+  "食梦者玛莉 OVA",
+  "我的朋友很少 第二季",
+  "潜行吧！奈亚子",
+  "忧郁的物怪庵 PV",
+  "邻座的怪同学",
+  "Battle Spirits Sword Eyes",
+  "光明之心～幸福的面包～",
+  "BTOOOM!爆炸头武士",
+  "恶之华",
+  "新网球王子",
+  "樱花庄的宠物女孩",
+  "Hunter x Hunter 剧场版 幻影旅团的阴谋",
+  "青春纪行",
+  "战勇。",
+  "超译百人一首歌之恋"
+],
+            "2013": [
+  "进击的巨人",
+  "中二病也要谈恋爱！恋",
+  "弹丸论破 希望学园与绝望高中生",
+  "恶魔高校D×D New",
+  "WHITE ALBUM 2",
+  "我的青春恋爱物语果然有问题",
+  "来自风平浪静的明天",
+  "变态王子与不笑猫",
+  "有顶天家族",
+  "银之匙 Silver Spoon",
+  "大家集合吧！Falcom学园",
+  "悠哉日常大王",
+  "魔王勇者",
+  "KILL la KILL",
+  "未确认进行式",
+  "凪之明日",
+  "翠星之加尔刚蒂亚",
+  "魔奇少年 辛巴德的冒险（OVA）",
+  "玉子市场",
+  "绝对防卫利维坦",
+  "萝球部！SS",
+  "翠星之加尔刚蒂亚",
+  "雏逻辑～来自幸运逻辑～",
+  "GJ部",
+  "战姬绝唱SYMPHOGEAR G",
+  "如果折断她的旗",
+  "科学超电磁炮S",
+  "High School DxD NEW",
+  "革命机Valvrave",
+  "Servant×Service",
+  "苍蓝钢铁的琶音",
+  "妹妹恋人",
+  "Tokyo Ravens 东京暗鸦",
+  "超青春姐弟s",
+  "黄金拼图",
+  "班会 OAD",
+  "末日三问",
+  "Galilei Donna 银河少女",
+  "白熊咖啡厅",
+  "东京残响（PV）",
+  "Strike the Blood",
+  "神不在的星期天",
+  "我的脑内选择肚兜恋爱喜剧",
+  "Free!",
+  "Wake Up, Girls! 七人的偶像（前日谭）",
+  "银狐",
+  "血意少年",
+  "钻石王牌"
+],
+            "2014": [
+  "未闻花名 剧场版",
+  "排球少年！！",
+  "东京喰种",
+  "NO GAME NO LIFE 游戏人生",
+  "刀剑神域II",
+  "月刊少女野崎君",
+  "野良神",
+  "四月是你的谎言",
+  "寄生兽 生命的准则",
+  "魔法科高校的劣等生",
+  "巴哈姆特之怒 GENESIS",
+  "东京残响",
+  "魔女之旅（PV/短篇动画）",
+  "境界触发者",
+  "日常生活中的异能战斗",
+  "妖怪手表",
+  "Love Live! 第二季",
+  "请问您今天要来点兔子吗？",
+  "甘城辉煌乐园救世主",
+  "ALDNOAH.ZERO",
+  "青春之旅",
+  "约会大作战II",
+  "selector infected WIXOSS",
+  "斩！赤红之瞳",
+  "恶魔之谜",
+  "鬼灯的冷彻",
+  "女友伴身边",
+  "魔弹之王与战姬",
+  "希德尼娅的骑士",
+  "临时女友",
+  "银之匙 第二季",
+  "我们大家的河合庄",
+  "六畳间的侵略者！？",
+  "野良神 OAD",
+  "黑色子弹",
+  "PSYCHO-PASS 心理测量者2",
+  "花物语",
+  "萝球部！SS OVA",
+  "魔法战争",
+  "平凡职业造就世界最强（原型短篇动画）",
+  "星刻的龙骑士",
+  "虫师 续章",
+  "白箱",
+  "印象笔记",
+  "军火女王：Perfect Order",
+  "幕末Rock",
+  "恶魔高校D×D BorN PV",
+  "织田信奈的野望 OVA",
+  "月刊少女野崎君 OVA"
+],
+            "2015": [
+  "一拳超人",
+  "在下坂本，有何贵干？（PV）",
+  "干物妹！小埋",
+  "路人女主的养成方法",
+  "樱子小姐的脚下埋着尸体",
+  "齐木楠雄的灾难（PV/先导）",
+  "终结的炽天使",
+  "食戟之灵",
+  "亚人酱有话要说（PV试映）",
+  "终物语",
+  "山田君与7人魔女",
+  "乱步奇谭",
+  "来自深渊（起始PV）",
+  "噬神者",
+  "青春×机关枪",
+  "Charlotte",
+  "黑塔利亚 The World Twinkle",
+  "亚尔斯兰战记",
+  "血界战线",
+  "赤发白雪姬",
+  "重装武器",
+  "监狱学园",
+  "钻石王牌 ACT II（前导PV）",
+  "境界之轮回",
+  "对魔导学园35试验小队",
+  "偶像活动！Stars",
+  "请问您今天要来点兔子吗？？ 第二季",
+  "紫罗兰永恒花园（短篇先导PV）",
+  "赤发白雪姬 第二季（前宣）",
+  "可塑性记忆",
+  "我的青春恋爱物语果然有问题。续",
+  "四月是你的谎言 OVA",
+  "俺物语！！",
+  "K RETURN OF KINGS",
+  "灰与幻想的格林姆迦尔（PV）",
+  "学战都市Asterisk",
+  "魔物娘的同居日常",
+  "吹响！上低音号",
+  "六花的勇者",
+  "龙与虎 OVA",
+  "苍穹之法芙娜 EXODUS",
+  "Classroom☆Crisis",
+  "高校星歌剧",
+  "总之就是非常可爱（起始PV）",
+  "噬血狂袭 OVA",
+  "舞台上的阿斯托拉",
+  "灰色的迷宫",
+  "偶像大师 灰姑娘女孩",
+  "苍蓝钢铁的琶音 剧场版"
+],
+            "2016": ["灰与幻想的格林姆迦尔", "Re:从零开始的异世界生活", "灵能百分百", "为美好的世界献上祝福", "冰上的尤里","只有我不存在的城市","3月的狮子","齐木楠雄的灾难","JOJO的奇妙冒险 不灭钻石 ","这个美术社大有问题！","ReLIFE","无彩限的怪灵世界","粗点心战争","你的名字","昭和元禄落语心中","吹响吧！上低音号 第二季","飞翔的魔女","伤物语","亚人","NEW GAME!","在下坂本，有何贵干?","声之形","线上游戏的老婆不可能是女生?","Anne Happy♪","暗杀教室 第二季","甲铁城的卡巴内利","排球少年 乌野高校 VS 白鸟泽学园高校","编舟记","魔法使光之美少女！","轻拍翻转小魔女","宇宙巡警露露子","无头骑士异闻录×2 结 ","赤发白雪姬 第2部分","食戟之灵 贰之皿 ","田中君总是如此慵懒","剑风传奇","文豪野犬","潮与虎 第二季","我老婆是学生会长!"],
+            "2017": ["小林家的龙女仆", "宝石之国", "来自深渊", "少女终末旅行", "此花亭奇谭","为美好的世界献上祝福！ 第二季","月色真美","埃罗芒阿老师","珈百璃的堕落","3月的狮子 第二季","路人女主的养成方法 ♭","欢迎来到实力至上主义的教室","末日时在做什么？有没有空？可以来拯救吗？","重启咲良田","狂赌之渊","幼女战记","GAMERS电玩咖","Just Because!","BanG Dream!","人渣的本愿","调教咖啡厅","宝石之国","魔法使的新娘","干物妹！小埋R","不正经的魔术讲师与禁忌教典","徒然喜欢你","血界战线 & BEYOND","笨女孩","如果有妹妹就好了","One Room","黑色五叶草",""],
+            "2018": ["比宇宙更远的地方", "佐贺偶像是传奇", "工作细胞", "命运石之门0", "紫罗兰永恒花园","摇曳露营△","擅长捉弄的高木同学","碧蓝之海","终将成为你","莉兹与青鸟","少女☆歌剧 Revue Starlight","青春猪头少年不会梦到兔女郎学姐","JOJO的奇妙冒险 黄金之风","强风吹拂","关于我转生变成史莱姆这档事","黄金神威","进击的巨人 第三季","赛马娘 Pretty Derby","来玩游戏吧","高分少女","DARLING in the FRANXX","恋如雨止","魔法禁书目录 第三季","齐木楠雄的灾难 第二季","恶魔人 crybaby","邪神与厨二病少女","我想吃掉你的胰脏","ReLIFE 完结篇","向山进发 第三季","龙王的工作","哥布林杀手","黄金神威 第二季","citrus～柑橘味香气～ ","宅男腐女恋爱真难","寄宿学校的朱丽叶","刀剑神域 爱丽丝篇","OVERLORD 第二季","Happy Sugar Life","爆肝工程师的异世界狂想曲","漫画女孩",""],
+            "2019": ["鬼灭之刃", "辉夜大小姐想让我告白", "盾之勇者成名录", "约定的梦幻岛", "石纪元","冰海战记","擅长捉弄的高木同学 第二季","淫乱的青酱不能学习","天使降临到了我身边","街角魔族","只要可爱即使是变态你也会喜欢我吧？","约会大作战 第三季","路人女主的养成方法 Fine","慎重勇者 ～这个勇者明明超强却过分慎重～ ","女高中生的无所事事","小书痴的下克上 〜为了成为图书管理员而不择手段〜","灵能百分百 第二季","天气之子","平凡职业造就世界最强","五等分的新娘","高分少女 第二季","BanG Dream! 第二季","玛纳利亚的密友","喜欢本大爷的竟然就你一个？","骚动时节的少女们啊","炎炎消防队","不吉波普不笑","为什么老师会在这里！？","动物狂想曲","你好 世界","笨拙之极的上野","为了女儿，我说不定连魔王都能干掉","动物狂想曲","某科学的一方通行","多罗罗","在地下城寻求邂逅是否搞错了什么 第二季","一拳超人 第二季","七大罪 诸神的逆鳞","贤惠幼妻仙狐小姐","入间同学入魔了"],
+            "2020": ["咒术回战", "别对映像研出手！", "Re:从零开始的异世界生活 第二季", "某科学的超电磁炮T", "公主连结Re:Dive","魔女之旅","异兽魔都","安达与岛村","群聚一堂！西顿学园","异种族风俗娘评鉴指南","异度侵入","总之就是非常可爱","进击的巨人 最终季","虚构推理","租借女友","恋爱小行星","因为太怕痛就全点防御力了","地缚少年花子君","转生成为了只有乙女游戏破灭Flag的邪恶大小姐","请问您今天要来点兔子吗？","魔王学院的不适任者","房间露营△","无能的奈奈","隐瞒之事","22/7","Love Live! 虹咲学园校园偶像同好会","在魔王城说晚安","宇崎学妹想要玩","魔物娘的医生","昨日之歌","寒蝉鸣泣之时 业","理科生坠入情网，故尝试证明","达尔文游戏","你与我最后的战场，亦或是世界起始的圣战",""],
+            "2021": ["奇蛋物语", "赛马娘 第二季", "86-不存在的战区-", "无职转生", "摇曳露营△ SEASON2","奇巧计程车","回复术士的重来人生","古见同学有交流障碍症","堀与宫村","小林家的龙女仆S","漂流少年","鬼灭之刃 游郭篇","派遣战斗员！","世界顶尖的暗杀者转生为异世界贵族","关于我转生变成史莱姆这档事 第二季","女友成堆","异世界迷宫黑心企业","五等分的新娘∬","打了300年的史莱姆，不知不觉就练到了满级","薇薇 -萤石眼之歌","剧场版 少女☆歌剧 Revue Starlight","致不灭的你","我们的重制人生","转生成蜘蛛又怎样","女神宿舍的宿管君","不要欺负我，长瀞同学","范马刃牙","弱角友崎同学","东京复仇者","精灵幻想记","剃须。然后捡到女高中生。","国王排名",""],
+            "2022": ["间谍过家家", "孤独摇滚！", "莉可丽丝", "更衣人偶坠入爱河", "夏日重现","想要成为影之实力者！","赛博朋克：边缘行者","链锯人","彻夜之歌","异世界舅舅","明日同学的水手服","契约之吻","不道德公会","JOJO的奇妙冒险 石之海","来自深渊 烈日的黄金乡","相合之物","进击的巨人 最终季 Part.2","欢迎来到实力至上主义的教室 第二季","约会大作战 第四季","古见同学有交流障碍症 第二季","异世界迷宫里的后宫生活","灵能百分百 第三季","铃芽之旅","恋爱游戏世界对路人角色很不友好","测不准的阿波连同学","少女手工","继母的拖油瓶是我的前女友","派对浪客诸葛孔明","通往夏天的隧道，再见的出口","青之芦苇","夫妇以上，恋人未满。","式守同学不只可爱而已","打工吧！！魔王大人","终末的后宫","东京24区","少女前线",""],
+            "2023": ["我推的孩子", "葬送的芙莉莲", "咒术回战 第二季", "冰海战记 第二季", "天国大魔境","别当欧尼酱了！","我心里危险的东西","BanG Dream! It's MyGO!!!!!","无职转生 第二季 ～到了异世界就拿出真本事～","地狱乐","超超超超超喜欢你的100个女朋友","药屋少女的呢喃","为美好的世界献上爆焰！","无神世界的神明活动","异世界悠闲农家","关于邻家的天使大人不知不觉把我惯成了废人这档子事","转生公主与天才千金的魔法革命","跃动青春","冰海战记 第二季","家里蹲吸血姬的苦闷","白圣女与黑牧师","放学后失眠的你","黑暗集会","最强阴阳师的异世界转生记","勇者死了","赛马娘 Pretty Derby 第三季","久保同学不放过我","死神少爷与黑女仆 第二季","和山田谈场Lv999的恋爱","智酱是女生！","妖幻三重奏","蓝色管弦乐","物理魔法使马修","公司的小小前辈","喜欢的人忘记戴眼镜了","政宗君的复仇R","带着智能手机闯荡异世界 第二季"],
+            "2024": ["迷宫饭", "葬送的芙莉莲 后半", "我独自升级", "佐佐木与文鸟小哔", "憧憬成为魔法少女","魔都精兵的奴隶","败犬女主太多了","GIRLS BAND CRY","义妹生活","公主大人“拷问”的时间到了","胆大党","不时轻声地以俄语遮羞的邻座艾莉同学","杖与剑的魔剑谭","魔法少女与邪恶曾经敌对","蓦然回首","欢迎来到实力至上主义的教室 第三季","关于我转生变成史莱姆这档事 第三季","青之箱","小市民系列","2.5次元的诱惑","亚托莉 -我挚爱的时光-","狼与香辛料 行商邂逅贤狼","关于地球的运动","夜晚的水母不会游泳","夜樱家的大作战","身为魔王的我娶了奴隶精灵为妻，该如何表白我的爱","缘结甘神家","疑似后宫","妖精的尾巴 百年任务","怪兽8号","魔法科高校的劣等生 第三季","到了30岁还是处男，似乎会变成魔法师","恋爱没法用双子除尽","鹿乃子乃子乃子虎视眈眈","独自一人的异世界攻略",""],
+            "2025": ["间谍过家家 第三季", "鬼灭之刃 柱训练篇", "古诺希亚","我们不可能成为恋人！绝对不行。 (※似乎可行？)","金牌得主","东岛丹三郎想成为假面骑士","琉璃的宝石","末日后酒店","剧场版 链锯人 蕾塞篇","时光流逝，饭菜依旧美味","碧蓝之海 第二季","拔作岛","彻夜之歌 第二季","弹珠汽水瓶里的千岁同学","薰香花朵凛然绽放","胆大党 第二季","对我垂涎欲滴的非人少女","夏日口袋","小城日常","BanG Dream Ave Mujica","魔女与使魔","药屋少女的呢喃 第二季","新 吊带袜天使","不良少女","咔嗒咔嗒","不动声色的柏田与喜形于色的太田","章鱼哔的原罪","野原广志午餐流派","朋友的妹妹只喜欢烦我","一拳超人 第三季","前桥魔女","坂本日常","脱离了A级队伍的我，和从前的徒弟们前往迷宫深处。","最近的侦探真没用","最后可以再拜托您一件事吗？","光死去的夏天","在冲绳喜欢上的女孩方言讲得太过令人困扰","紫云寺家的兄弟姐妹","我和班上最讨厌的女生结婚了","这公司有我喜欢的人","跨越种族与你相恋",""],
+            }
+        
+        // 初始化变量
+        let watchedAnime = new Set();
+        let animeTable = [];
+        
+        // DOM元素
+        const tableBody = document.querySelector('#anime-table tbody');
+        const tableHead = document.querySelector('#anime-table thead tr');
+        const countElement = document.getElementById('count');
+        const resetBtn = document.getElementById('reset-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const importBtn = document.getElementById('import-btn');
+        const importFile = document.getElementById('import-file');
+        
+        // 从本地存储加载已观看的动漫
+        function loadWatchedAnime() {
+            const saved = localStorage.getItem('watchedAnime');
+            if (saved) {
+                watchedAnime = new Set(JSON.parse(saved));
+            }
+            updateCount();
+        }
+        
+        // 保存已观看的动漫到本地存储
+        function saveWatchedAnime() {
+            localStorage.setItem('watchedAnime', JSON.stringify([...watchedAnime]));
+        }
+        
+        // 更新计数显示
+        function updateCount() {
+            countElement.textContent = watchedAnime.size;
+        }
+        
+        // 创建表格
+        function createTable() {
+            // 清空表格
+            tableHead.innerHTML = '<th class="year-header">年份</th>';
+            tableBody.innerHTML = '';
+            
+            // 获取所有年份
+            const years = Object.keys(animeData).sort((a, b) => parseInt(a) - parseInt(b));
+            
+            // 确定表格的最大列数（最多动漫的年份）
+            let maxAnimeCount = 0;
+            years.forEach(year => {
+                maxAnimeCount = Math.max(maxAnimeCount, animeData[year].length);
+            });
+            
+            // 创建表头
+            for (let i = 0; i < maxAnimeCount; i++) {
+                const th = document.createElement('th');
+                th.textContent = `动漫 ${i + 1}`;
+                tableHead.appendChild(th);
+            }
+            
+            // 创建表格行
+            years.forEach(year => {
+                const row = document.createElement('tr');
+                
+                // 年份列
+                const yearCell = document.createElement('td');
+                yearCell.className = 'year-column';
+                yearCell.textContent = year;
+                row.appendChild(yearCell);
+                
+                // 动漫单元格
+                const animes = animeData[year];
+                for (let i = 0; i < maxAnimeCount; i++) {
+                    const cell = document.createElement('td');
+                    cell.className = 'anime-cell';
+                    
+                    if (i < animes.length) {
+                        const animeName = animes[i];
+                        cell.innerHTML = `<div class="anime-name">${animeName}</div>`;
+                        
+                        // 创建唯一标识符
+                        const animeId = `${year}-${animeName}`;
+                        
+                        // 检查是否已观看
+                        if (watchedAnime.has(animeId)) {
+                            cell.classList.add('watched');
+                        }
+                        
+                        // 添加点击事件
+                        cell.addEventListener('click', () => {
+                            if (cell.classList.contains('watched')) {
+                                cell.classList.remove('watched');
+                                watchedAnime.delete(animeId);
+                            } else {
+                                cell.classList.add('watched');
+                                watchedAnime.add(animeId);
+                            }
+                            updateCount();
+                            saveWatchedAnime();
+                        });
+                        
+                        // 存储动漫信息
+                        animeTable.push({
+                            id: animeId,
+                            year: year,
+                            name: animeName,
+                            cell: cell
+                        });
+                    }
+                    
+                    row.appendChild(cell);
+                }
+                
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // 重置所有标记
+        function resetAll() {
+            if (confirm('确定要重置所有观看标记吗？此操作不可撤销。')) {
+                watchedAnime.clear();
+                animeTable.forEach(item => {
+                    item.cell.classList.remove('watched');
+                });
+                updateCount();
+                saveWatchedAnime();
+            }
+        }
+        
+        // 导出数据为JSON文件
+        function exportData() {
+            const data = {
+                watchedAnime: [...watchedAnime],
+                exportDate: new Date().toISOString(),
+                totalCount: watchedAnime.size
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(dataBlob);
+            downloadLink.download = `动漫观看统计_${new Date().toLocaleDateString('zh-CN')}.json`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            
+            alert(`数据已导出，共${watchedAnime.size}部动漫`);
+        }
+        
+        // 导入数据
+        function importData() {
+            importFile.click();
+        }
+        
+        // 处理导入文件
+        function handleImportFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (data.watchedAnime && Array.isArray(data.watchedAnime)) {
+                        // 清除当前数据
+                        watchedAnime.clear();
+                        
+                        // 添加导入的数据
+                        data.watchedAnime.forEach(id => {
+                            watchedAnime.add(id);
+                        });
+                        
+                        // 更新表格
+                        animeTable.forEach(item => {
+                            if (watchedAnime.has(item.id)) {
+                                item.cell.classList.add('watched');
+                            } else {
+                                item.cell.classList.remove('watched');
+                            }
+                        });
+                        
+                        updateCount();
+                        saveWatchedAnime();
+                        alert(`成功导入数据，共${watchedAnime.size}部动漫`);
+                    } else {
+                        alert('文件格式不正确，无法导入数据');
+                    }
+                } catch (error) {
+                    alert('读取文件时发生错误：' + error.message);
+                }
+                
+                // 清空文件输入，以便可以再次选择同一文件
+                importFile.value = '';
+            };
+            
+            reader.readAsText(file);
+        }
+        
+        // 初始化页面
+        function init() {
+            loadWatchedAnime();
+            createTable();
+            
+            // 添加事件监听器
+            resetBtn.addEventListener('click', resetAll);
+            exportBtn.addEventListener('click', exportData);
+            importBtn.addEventListener('click', importData);
+            importFile.addEventListener('change', handleImportFile);
+            
+            // 添加键盘快捷键
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    resetAll();
+                }
+            });
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
